@@ -1,17 +1,17 @@
 import { client } from "..";
 
-export async function getValue(selectedKey: string, type: string): Promise<unknown> {
+export async function getValue(key: string, type: string) {
   switch (type) {
     case "string":
-      return client.get(selectedKey);
+      return client.get(key);
     case "hash":
-      return client.hGetAll(selectedKey);
+      return client.hGetAll(key);
     case "list":
-      return client.lRange(selectedKey, 0, -1);
+      return client.lRange(key, 0, -1);
     case "set":
-      return client.sMembers(selectedKey);
+      return client.sMembers(key);
     case "zset":
-      return client.zRangeWithScores(selectedKey, 0, -1);
+      return client.zRangeWithScores(key, 0, -1);
     default:
       return "(unsupported type)";
   }

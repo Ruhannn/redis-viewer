@@ -1,5 +1,4 @@
 import { client } from "..";
-import { cleanup } from "./clean-up";
 
 export async function gracefulExit(code = 0) {
   try {
@@ -18,7 +17,7 @@ export async function gracefulExit(code = 0) {
   }
   catch {}
   finally {
-    cleanup();
+    console.clear();
     process.exit(code);
   }
 }

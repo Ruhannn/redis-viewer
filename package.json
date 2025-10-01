@@ -10,9 +10,16 @@
   "bin": {
     "kami-redis": "dist/index.js"
   },
+
+  "files": [
+    "/dist",
+    "README.md",
+    "package.json"
+  ],
+
   "scripts": {
     "dev": "bun run --watch src/index.ts",
-    "build": "tsup src/index.ts",
+    "build": "tsup",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "release": "bun run build && changeset publish",
