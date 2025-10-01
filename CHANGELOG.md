@@ -1,5 +1,11 @@
 # kami-redis
 
+## 2.1.0
+
+### Minor Changes
+
+- ae0d46d: fixed node issue and also make it smaller
+
 ## 2.0.3
 
 ### Patch Changes
