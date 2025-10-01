@@ -1,5 +1,11 @@
 # kami-redis
 
+## 2.0.3
+
+### Patch Changes
+
+- 3c47730: fixed
+
 ## 2.0.2
 
 ### Patch Changes
