@@ -1,7 +1,7 @@
 {
   "name": "kami-redis",
   "type": "module",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "Browse, inspect, copy, and delete Redis keys from your CLI",
   "license": "MIT",
   "main": "dist/index.js",
