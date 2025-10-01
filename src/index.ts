@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 /* eslint-disable style/no-tabs */
 import meow from "meow";
 import pc from "picocolors";

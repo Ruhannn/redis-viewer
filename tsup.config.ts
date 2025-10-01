@@ -5,5 +5,4 @@ export default defineConfig({
   outDir: "dist",
   clean: true,
   format: ["esm"],
-  dts: true,
 });
