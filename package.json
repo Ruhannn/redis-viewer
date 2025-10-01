@@ -1,7 +1,7 @@
 {
   "name": "kami-redis",
   "type": "module",
-  "version": "2.0.3",
+  "version": "2.1.0",
   "description": "Browse, inspect, copy, and delete Redis keys from your CLI",
   "license": "MIT",
   "main": "dist/index.js",
@@ -10,13 +10,11 @@
   "bin": {
     "kami-redis": "dist/index.js"
   },
-
   "files": [
     "/dist",
     "README.md",
     "package.json"
   ],
-
   "scripts": {
     "dev": "bun run --watch src/index.ts",
     "build": "tsup",
