@@ -5,4 +5,7 @@ export default defineConfig({
   outDir: "dist",
   clean: true,
   format: ["esm"],
+  platform: "node",
+  minify: true,
+  sourcemap: true,
 });
