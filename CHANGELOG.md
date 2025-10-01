@@ -1,5 +1,11 @@
 # kami-redis
 
+## 2.0.2
+
+### Patch Changes
+
+- c9fe624: added shebang
+
 ## 2.0.1
 
 ### Patch Changes
