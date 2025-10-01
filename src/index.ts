@@ -12,7 +12,7 @@ import { viewKey } from "./utils/view-key";
 const cli = meow(
   `
 	Usage
-	   foo <url>
+	   kami-redis <url>
 `,
   {
     importMeta: import.meta,
