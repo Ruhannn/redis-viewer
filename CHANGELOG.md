@@ -1,5 +1,11 @@
 # kami-redis
 
+## 2.2.0
+
+### Minor Changes
+
+- 0bc6241: fixed copy in linux and windows and runtime node
+
 ## 2.1.4
 
 ### Patch Changes
