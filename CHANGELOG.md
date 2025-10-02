@@ -1,5 +1,11 @@
 # kami-redis
 
+## 2.1.3
+
+### Patch Changes
+
+- b58bf2a: fixed the gif link
+
 ## 2.1.2
 
 ### Patch Changes
