@@ -1,5 +1,11 @@
 # kami-redis
 
+## 2.1.4
+
+### Patch Changes
+
+- 36b3399: added bigger gif
+
 ## 2.1.3
 
 ### Patch Changes
