@@ -1,12 +1,14 @@
 import boxen from "boxen";
 import { highlight } from "cli-highlight";
-// import clipboard from "clipboardy";
+import { exec } from "node:child_process";
 import readline from "node:readline";
 import pc from "picocolors";
 
 import { client } from "..";
+import { getCopyCmd } from "./copy-to-clipboard";
 import { formatValue } from "./format-value";
 import { getValue } from "./get-value";
+import { isWindows } from "./os";
 
 let keypressInitialized = false;
 function initKeypress() {
@@ -19,10 +21,10 @@ function initKeypress() {
 export async function viewKey(selectedKey: string): Promise<string> {
   const type = await client.type(selectedKey);
   const value = await getValue(selectedKey, type);
-
+  const f_value = formatValue(value);
   console.clear();
   console.log(
-    boxen(highlight(formatValue(value), { language: "json", ignoreIllegals: true }), {
+    boxen(highlight(f_value, { language: "json", ignoreIllegals: true }), {
       borderColor: "cyan",
       padding: 1,
       title: selectedKey,
@@ -76,18 +78,17 @@ export async function viewKey(selectedKey: string): Promise<string> {
       }
 
       if (key.name === "c") {
-        try {
-          // await clipboard.write("dfsdf");
-          console.log("Copied to clipboard!");
-        }
-        catch (err) {
-          console.log("Error copying:", err);
-        }
+        const cmd = getCopyCmd(f_value);
+
+        exec(cmd, isWindows ? { shell: "powershell.exe" } : {}, (error) => {
+          if (error) {
+            console.error(`Copy failed: ${error}`);
+          }
+        });
 
         cleanup();
         console.clear();
         resolve("back");
-        return;
       }
 
       if (key.name === "left") {
