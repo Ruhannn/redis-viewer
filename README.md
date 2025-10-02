@@ -4,7 +4,7 @@ A tiny CLI to browse keys, view nicely formatted values, copy them, or delete â€
 
 ### Demo
 
-![Demo Gif](/assets/demo.gif)
+![Demo Gif](https://raw.githubusercontent.com/Ruhannn/redis-viewer/refs/heads/main/assets/demo.gif)
 
 ### Features
 
