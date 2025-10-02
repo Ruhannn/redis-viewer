@@ -2,12 +2,9 @@
 
 A tiny CLI to browse keys, view nicely formatted values, copy them, or delete — fast and simple.
 
-### Screenshots
+### Demo
 
-(Add later)
-
-- `./docs/screenshot-keys.png`
-- `./docs/screenshot-json.png`
+![Demo Gif](./assets/demo.gif)
 
 ### Features
 

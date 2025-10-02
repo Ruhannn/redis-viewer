@@ -7,3 +7,5 @@ services:
     volumes:
       - ./data:/data
     command: [redis-server, --appendonly, yes]
+    stdin_open: true
+    tty: true
