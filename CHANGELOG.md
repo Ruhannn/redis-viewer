@@ -1,5 +1,11 @@
 # kami-redis
 
+## 2.1.2
+
+### Patch Changes
+
+- 725dd8c: maybe fixed gif
+
 ## 2.1.1
 
 ### Patch Changes
