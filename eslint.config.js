@@ -10,6 +10,7 @@ export default antfu({
     quotes: "double",
   },
 }, {
+  ignores: ["AGENTS.md", ".agents/**"],
   rules: {
     "ts/no-redeclare": "off",
     "ts/consistent-type-definitions": ["error", "type"],
@@ -17,6 +18,7 @@ export default antfu({
     "antfu/no-top-level-await": ["off"],
     "node/prefer-global/process": ["off"],
     "node/no-process-env": ["off"],
+    "unicorn/throw-new-error": ["off"],
     "perfectionist/sort-imports": ["error", {
       tsconfigRootDir: ".",
     }],

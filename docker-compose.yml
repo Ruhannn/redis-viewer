@@ -4,8 +4,6 @@ services:
     container_name: my_redis
     ports:
       - "6379:6379"
-    volumes:
-      - ./data:/data
     command: [redis-server, --appendonly, yes]
     stdin_open: true
     tty: true

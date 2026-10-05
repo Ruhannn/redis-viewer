@@ -1,65 +1,162 @@
+import { Effect, Schema } from "effect";
 import meow from "meow";
 import pc from "picocolors";
-import { createClient } from "redis";
 
+import type { RedisConnection, RedisError } from "./redis-client";
+import type { PromptCancelled } from "./utils/prompt-for-key";
+
+import { withRedisClient } from "./redis-client";
 import { isRedisUrl } from "./utils/is-redis-url";
 import { promptForKey } from "./utils/prompt-for-key";
 import { viewKey } from "./utils/view-key";
 
-const cli = meow(`Usage: kami-redis <url>`, { importMeta: import.meta });
-const [url] = cli.input;
+type CliConfig = {
+  keyLimit: number;
+  pattern: string;
+  url: string;
+};
 
-if (!url) {
-  console.log(cli.help);
-  process.exit(1);
-}
+class CliValidationError extends Schema.TaggedError<CliValidationError>()("CliValidationError", {
+  help: Schema.String,
+  message: Schema.String,
+}) {}
 
-if (!isRedisUrl(url)) {
-  console.log(cli.help);
-  console.log(pc.red("Invalid Redis URL"));
-  process.exit(1);
-}
+const parseCli = Effect.fn("parseCli")(function* (): Effect.fn.Return<CliConfig, CliValidationError> {
+  const cli = yield* Effect.sync(() => meow(`
+Usage
+  $ kami-redis <url>
 
-export const client = createClient({ url });
+Options
+  --pattern, -p  Redis key pattern to browse (default: *)
+  --limit, -l    Maximum keys to load into the selector (default: 500)
 
-async function main() {
-  try {
-    console.clear();
-    await client.connect();
+Examples
+  $ kami-redis redis://localhost:6379
+  $ kami-redis redis://localhost:6379 --pattern "user:*"
+`, {
+    importMeta: import.meta,
+    flags: {
+      limit: {
+        type: "number",
+        shortFlag: "l",
+        default: 500,
+      },
+      pattern: {
+        type: "string",
+        shortFlag: "p",
+        default: "*",
+      },
+    },
+  }));
+  const [url] = cli.input;
+  const pattern = cli.flags.pattern.trim() || "*";
+  const keyLimit = cli.flags.limit;
 
-    while (true) {
-      const selectedKey = await promptForKey();
-
-      if (!selectedKey) {
-        console.log("No keys in Redis");
-        await client.quit();
-        process.exit(0);
-      }
-
-      const action = await viewKey(selectedKey);
-
-      if (action === "quit") {
-        await client.quit();
-        process.exit(0);
-      }
-    }
+  if (!url) {
+    return yield* new CliValidationError({
+      help: cli.help,
+      message: "",
+    });
   }
-  catch (err) {
-    console.error(pc.red("Error:"), err);
-    try {
-      await client.quit();
-    }
-    catch {}
-    process.exit(1);
-  }
-}
 
-process.on("SIGINT", async () => {
-  try {
-    await client.quit();
+  if (!isRedisUrl(url)) {
+    return yield* new CliValidationError({
+      help: cli.help,
+      message: "Invalid Redis URL",
+    });
   }
-  catch {}
-  process.exit(0);
+
+  if (!Number.isInteger(keyLimit) || keyLimit < 1) {
+    return yield* new CliValidationError({
+      help: cli.help,
+      message: "Key limit must be a positive integer",
+    });
+  }
+
+  return { keyLimit, pattern, url };
 });
 
-main();
+const browseKeys = Effect.fn("browseKeys")(function* (
+  client: RedisConnection,
+  config: CliConfig,
+): Effect.fn.Return<void, PromptCancelled | RedisError> {
+  yield* Effect.sync(() => console.clear());
+
+  let selectedKeyDefault: string | undefined;
+  while (true) {
+    const selectedKey = yield* promptForKey(client, {
+      defaultKey: selectedKeyDefault,
+      pattern: config.pattern,
+      limit: config.keyLimit,
+    });
+
+    if (!selectedKey) {
+      yield* Effect.sync(() => console.log(
+        config.pattern === "*" ? "No keys in Redis" : `No keys match pattern ${config.pattern}`,
+      ));
+      return;
+    }
+
+    selectedKeyDefault = selectedKey;
+    const action = yield* viewKey(client, selectedKey);
+
+    if (action === "quit")
+      return;
+  }
+});
+
+const resetStdin = Effect.sync(() => {
+  if (process.stdin.isTTY) {
+    try {
+      process.stdin.setRawMode(false);
+    }
+    catch {}
+  }
+
+  try {
+    process.stdin.pause();
+  }
+  catch {}
+});
+
+const program = parseCli().pipe(
+  Effect.flatMap(config => withRedisClient(
+    config.url,
+    client => browseKeys(client, config),
+  )),
+  Effect.catchTags({
+    CliValidationError: error => Effect.sync(() => {
+      console.log(error.help);
+      if (error.message)
+        console.log(pc.red(error.message));
+      process.exitCode = 1;
+    }),
+    PromptCancelled: () => resetStdin.pipe(
+      Effect.tap(() => Effect.sync(() => console.clear())),
+    ),
+  }),
+  Effect.catch(error => resetStdin.pipe(
+    Effect.tap(() => Effect.sync(() => {
+      console.error(pc.red("Error:"), error);
+      process.exitCode = 1;
+    })),
+  )),
+);
+
+const abortController = new AbortController();
+let interrupted = false;
+
+process.once("SIGINT", () => {
+  interrupted = true;
+  abortController.abort();
+});
+
+Effect.runPromise(program, { signal: abortController.signal }).catch((error: unknown) => {
+  if (interrupted) {
+    process.exitCode = 0;
+    return;
+  }
+
+  console.error(pc.red("Error:"), error);
+  process.exitCode = 1;
+});

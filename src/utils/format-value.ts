@@ -1,14 +1,16 @@
-export function formatValue(value: unknown): string {
+import { Effect } from "effect";
+
+export const formatValue = Effect.fnUntraced(function* (value: unknown): Effect.fn.Return<string> {
   if (typeof value === "object" && value !== null) {
-    return JSON.stringify(value, null, 2);
+    return yield* Effect.sync(() => JSON.stringify(value, null, 2));
   }
+
   if (typeof value === "string") {
-    try {
-      return JSON.stringify(JSON.parse(value), null, 2);
-    }
-    catch {
-      return value;
-    }
+    return yield* Effect.try({
+      try: () => JSON.stringify(JSON.parse(value), null, 2),
+      catch: () => value,
+    }).pipe(Effect.catch(fallback => Effect.succeed(fallback)));
   }
+
   return String(value);
-}
+});

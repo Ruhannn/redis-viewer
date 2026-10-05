@@ -1,5 +1,11 @@
 # kami-redis
 
+## 2.3.0
+
+### Minor Changes
+
+- Add paginated Redis key browsing with pattern and limit options, TTL labels, broader Redis type previews, delete confirmation, and expanded clipboard support.
+
 ## 2.2.0
 
 ### Minor Changes
