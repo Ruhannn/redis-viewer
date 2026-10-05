@@ -1,5 +1,11 @@
 # kami-redis
 
+## 3.0.0
+
+### Major Changes
+
+- c0da6bb: Move everything to effect.ts , fixed bugs
+
 ## 2.3.0
 
 ### Minor Changes
