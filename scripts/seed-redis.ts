@@ -3,7 +3,7 @@ import pc from "picocolors";
 
 import type { RedisConnection, RedisError } from "../src/redis-client";
 
-import { RedisError as RedisErrorCtor, withRedisClient } from "../src/redis-client";
+import { formatRedisError, formatUnknownCause, RedisError as RedisErrorCtor, withRedisClient } from "../src/redis-client";
 import { isRedisUrl } from "../src/utils/is-redis-url";
 
 const DEFAULT_REDIS_URL = "redis://localhost:6379";
@@ -102,13 +102,17 @@ const program = Effect.gen(function* () {
     }
   });
 }).pipe(
+  Effect.catchTag("RedisError", error => Effect.sync(() => {
+    console.error(pc.red(formatRedisError(error)));
+    process.exitCode = 1;
+  })),
   Effect.catch(error => Effect.sync(() => {
-    console.error(pc.red("Seed failed:"), error);
+    console.error(pc.red("Seed failed:"), formatUnknownCause(error));
     process.exitCode = 1;
   })),
 );
 
 Effect.runPromise(program).catch((error: unknown) => {
-  console.error(pc.red("Seed failed:"), error);
+  console.error(pc.red("Seed failed:"), formatUnknownCause(error));
   process.exitCode = 1;
 });

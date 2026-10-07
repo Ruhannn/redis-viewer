@@ -81,7 +81,7 @@ const loadKeyRows = Effect.fn("loadKeyRows")(function* (
     async try() {
       return Promise.all(keys.map(async key => ({
         key,
-        ttlLabel: formatTtl(await client.ttl(key).catch(() => -1)),
+        ttlLabel: formatTtl(await client.ttl(key)),
       })));
     },
     catch: cause => new RedisError({ operation: "load key expiry timers", cause }),

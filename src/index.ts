@@ -5,7 +5,7 @@ import pc from "picocolors";
 import type { RedisConnection, RedisError } from "./redis-client";
 import type { PromptCancelled } from "./utils/prompt-for-key";
 
-import { withRedisClient } from "./redis-client";
+import { formatRedisError, formatUnknownCause, withRedisClient } from "./redis-client";
 import { isRedisUrl } from "./utils/is-redis-url";
 import { promptForKey } from "./utils/prompt-for-key";
 import { viewKey } from "./utils/view-key";
@@ -131,13 +131,19 @@ const program = parseCli().pipe(
         console.log(pc.red(error.message));
       process.exitCode = 1;
     }),
+    RedisError: error => resetStdin.pipe(
+      Effect.tap(() => Effect.sync(() => {
+        console.error(pc.red(formatRedisError(error)));
+        process.exitCode = 1;
+      })),
+    ),
     PromptCancelled: () => resetStdin.pipe(
       Effect.tap(() => Effect.sync(() => console.clear())),
     ),
   }),
   Effect.catch(error => resetStdin.pipe(
     Effect.tap(() => Effect.sync(() => {
-      console.error(pc.red("Error:"), error);
+      console.error(pc.red("Unexpected error:"), formatUnknownCause(error));
       process.exitCode = 1;
     })),
   )),
@@ -157,6 +163,6 @@ Effect.runPromise(program, { signal: abortController.signal }).catch((error: unk
     return;
   }
 
-  console.error(pc.red("Error:"), error);
+  console.error(pc.red("Unexpected error:"), formatUnknownCause(error));
   process.exitCode = 1;
 });

@@ -74,6 +74,16 @@ kami-redis redis://localhost:6379 --limit 1000
 
 Values stay clean; large collections show a capped preview, and expiring keys show a minimal timer like `15 min`, `30 sec`, or `2 hr`.
 
+### Errors
+
+Connection and Redis command failures are handled through Effect and printed as concise messages, for example:
+
+```text
+Redis connection failed while trying to connect: connect ECONNREFUSED 127.0.0.1:6379
+```
+
+The CLI exits with code `1` for validation, connection, scan, read, delete, and seed failures.
+
 ## Feedback
 
 If you have any feedback, feel free to reach out to [KamiRu](https://discord.com/users/819191621676695563) on Discord.

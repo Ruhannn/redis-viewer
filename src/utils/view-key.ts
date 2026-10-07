@@ -6,7 +6,7 @@ import pc from "picocolors";
 
 import type { RedisConnection } from "../redis-client";
 
-import { RedisError } from "../redis-client";
+import { formatUnknownCause, RedisError } from "../redis-client";
 import { copyToClipboard } from "./copy-to-clipboard";
 import { formatTtl } from "./format-ttl";
 import { formatValue } from "./format-value";
@@ -134,10 +134,6 @@ function readViewAction(
             console.clear();
             console.log(pc.green(`Deleted ${selectedKey}`));
           })),
-          Effect.catch(error => Effect.sync(() => {
-            console.clear();
-            console.error(pc.red("Delete failed:"), error);
-          })),
           Effect.as("deleted" as const),
         ));
         return;
@@ -165,7 +161,7 @@ function readViewAction(
           console.log(pc.green(`Copied value to clipboard via ${copyResult.method}`));
         }).catch((error: unknown) => {
           copying = false;
-          console.error(pc.red("Copy failed:"), error);
+          console.error(pc.red("Copy failed:"), formatUnknownCause(error));
         });
         return;
       }

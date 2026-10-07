@@ -1,5 +1,11 @@
 # kami-redis
 
+## Unreleased
+
+### Patch Changes
+
+- Handle Redis connection and command failures through Effect with user-facing error messages.
+
 ## 3.0.0
 
 ### Major Changes
